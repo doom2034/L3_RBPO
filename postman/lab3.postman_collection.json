@@ -1,0 +1,1916 @@
+{
+  "info": {
+    "name": "Лабораторная №3 — экзамены (CRUD + 5 бизнес-операций)",
+    "_postman_id": "b7e3fbbb-2cad-4a4c-b4ce-cd8aafeb1149",
+    "description": "Запуск по порядку через Collection Runner. HTTP Basic adminUser/adminPassword. В Postman тесты сохраняют ID через pm.collectionVariables. Деструктивные CRUD операции выполняются на временных сущностях; основной экзаменационный сценарий сохраняется для просмотра отчёта. Используйте пустую/учебную БД.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{adminUser}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{adminPassword}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminUser",
+      "value": "admin"
+    },
+    {
+      "key": "adminPassword",
+      "value": ""
+    },
+    {
+      "key": "crudUserId",
+      "value": ""
+    },
+    {
+      "key": "crudExamId",
+      "value": ""
+    },
+    {
+      "key": "crudTaskId",
+      "value": ""
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "examId",
+      "value": ""
+    },
+    {
+      "key": "task1Id",
+      "value": ""
+    },
+    {
+      "key": "task2Id",
+      "value": ""
+    },
+    {
+      "key": "foreignExamId",
+      "value": ""
+    },
+    {
+      "key": "foreignTaskId",
+      "value": ""
+    },
+    {
+      "key": "attemptId",
+      "value": ""
+    },
+    {
+      "key": "solutionId",
+      "value": ""
+    },
+    {
+      "key": "deleteStudentId",
+      "value": ""
+    },
+    {
+      "key": "deleteAttemptId",
+      "value": ""
+    },
+    {
+      "key": "deleteSolutionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 · CRUD пользователей и экзаменов (временные объекты)",
+      "item": [
+        {
+          "name": "User CREATE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Тестовый CRUD-пользователь\",\n  \"email\": \"crud-{{$guid}}@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"crudUserId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User LIST",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User READ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{crudUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{crudUserId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User UPDATE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{crudUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{crudUserId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Исправленное имя\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exam CREATE (DRAFT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Черновик CRUD\",\n  \"passingScore\": 5,\n  \"timeLimit\": 40\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"crudExamId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exam READ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/{{crudExamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{crudExamId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exam LIST",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exam UPDATE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/{{crudExamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{crudExamId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Обновленный черновик\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Task CREATE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks?examId={{crudExamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{crudExamId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Временное задание\",\n  \"referenceAnswer\": \"4\",\n  \"maxScore\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"crudTaskId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Task LIST",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Task READ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks/{{crudTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks",
+                "{{crudTaskId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Task UPDATE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks/{{crudTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks",
+                "{{crudTaskId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Обновлённое условие\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Task DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks/{{crudTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks",
+                "{{crudTaskId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exam DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/{{crudExamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{crudExamId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{crudUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{crudUserId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 · Основной сценарий: 5 бизнес-операций",
+      "item": [
+        {
+          "name": "Создать студента",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Иван Учебный\",\n  \"email\": \"student-{{$guid}}@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"studentId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Создать основной экзамен",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Основы SQL (демо)\",\n  \"passingScore\": 10,\n  \"timeLimit\": 45\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"examId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Создать задание №1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks?examId={{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Оператор выборки данных\",\n  \"referenceAnswer\": \"SELECT\",\n  \"maxScore\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"task1Id\", String(payload.id));",
+                  "pm.test(\"Ответ эталона скрыт\", () => pm.expect(pm.response.text()).not.to.include(\"referenceAnswer\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Создать задание №2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks?examId={{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Оператор вставки данных\",\n  \"referenceAnswer\": \"INSERT\",\n  \"maxScore\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"task2Id\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: старт DRAFT запрещен",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/start?examId={{examId}}&userId={{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{studentId}}"
+                }
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №4: опубликовать экзамен",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/{{examId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{examId}}",
+                "publish"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Статус ACTIVE\", () => pm.expect(pm.response.json().status).to.eql(\"ACTIVE\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: изменение ACTIVE запрещено",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/{{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{examId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passingScore\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №1: начать попытку",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/start?examId={{examId}}&userId={{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{studentId}}"
+                }
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"attemptId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: вторая активная попытка запрещена",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/start?examId={{examId}}&userId={{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{studentId}}"
+                }
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attempt LIST",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attempt READ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/{{attemptId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{attemptId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №2: правильный ответ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{attemptId}}&taskId={{task1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{attemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{task1Id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"SELECT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"solutionId\", String(payload.id));",
+                  "pm.test(\"Оценка 10\", () => pm.expect(pm.response.json().score).to.eql(10));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solution LIST",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solution READ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/{{solutionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "{{solutionId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: повторный ответ запрещён",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{attemptId}}&taskId={{task1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{attemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{task1Id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"SELECT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Создать чужой экзамен",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Посторонний экзамен\",\n  \"passingScore\": 0,\n  \"timeLimit\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"foreignExamId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Создать чужое задание",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-tasks?examId={{foreignExamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-tasks"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{foreignExamId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Чужое задание\",\n  \"referenceAnswer\": \"OK\",\n  \"maxScore\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"foreignTaskId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: ответ на чужое задание",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{attemptId}}&taskId={{foreignTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{attemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{foreignTaskId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"OK\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №2: неверный ответ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{attemptId}}&taskId={{task2Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{attemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{task2Id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"UPDATE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Оценка 0\", () => pm.expect(pm.response.json().score).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №3: завершить попытку",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/{{attemptId}}/finish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{attemptId}}",
+                "finish"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Пройден экзамен с 10 баллами\", () => {let x=pm.response.json();pm.expect(x.status).to.eql(\"PASSED\");pm.expect(x.finalScore).to.eql(10);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: повторный финиш запрещён",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/{{attemptId}}/finish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{attemptId}}",
+                "finish"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: отправка после финиша запрещена",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{attemptId}}&taskId={{task2Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{attemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{task2Id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"INSERT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Негатив: удалять решение завершённой попытки нельзя",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/{{solutionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "{{solutionId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "БО №5: отчёт студента",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/report/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "report",
+                "{{studentId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "200",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Отчёт содержит попытку и успешный экзамен\",()=>{let r=pm.response.json();pm.expect(r.totalAttempts).to.be.at.least(1);pm.expect(r.successfulExams).to.be.at.least(1);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 · CRUD решения и попытки (допустимое удаление)",
+      "item": [
+        {
+          "name": "Создать отдельного студента",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Студент для удаления\",\n  \"email\": \"delete-{{$guid}}@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"deleteStudentId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start = CREATE attempt",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/start?examId={{examId}}&userId={{deleteStudentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "examId",
+                  "value": "{{examId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{deleteStudentId}}"
+                }
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"deleteAttemptId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit = CREATE solution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/submit?attemptId={{deleteAttemptId}}&taskId={{task1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "submit"
+              ],
+              "query": [
+                {
+                  "key": "attemptId",
+                  "value": "{{deleteAttemptId}}"
+                },
+                {
+                  "key": "taskId",
+                  "value": "{{task1Id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"SELECT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const payload = pm.response.json();",
+                  "pm.test(\"Получен id\", () => pm.expect(payload.id).to.exist);",
+                  "pm.collectionVariables.set(\"deleteSolutionId\", String(payload.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solution DELETE (IN_PROGRESS)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/task-solutions/{{deleteSolutionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "task-solutions",
+                "{{deleteSolutionId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attempt DELETE (без решений)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/exam-attempts/{{deleteAttemptId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{deleteAttemptId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{deleteStudentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{deleteStudentId}}"
+              ]
+            },
+            "description": "Задание 3; запускать в указанной последовательности. Все запросы работают с PostgreSQL через Spring Data JPA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
